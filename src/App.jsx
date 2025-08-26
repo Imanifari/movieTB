@@ -1,6 +1,9 @@
 import { useState, useEffect, useLayoutEffect } from "react";
+import { useDebounce } from "use-debounce";
 import "./App.css";
 import Search from "./components/Search";
+import Spinner from "./components/Spinner";
+import MovieCard from "./components/MovieCard";
 
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3";
@@ -18,11 +21,16 @@ function App() {
   const [errorMsg, setErrorMsg] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [movieList, setMovieList] = useState([]);
+  const [debouncedSearch] = useDebounce(search, 500);
 
-  const fetchMovies = async () => {
+  console.log("search", search);
+  console.log("debouncedSearch", debouncedSearch);
+  const fetchMovies = async (query) => {
     setIsLoading(true);
     try {
-      const endpoint = `${BASE_URL}/discover/movie?sort_by=popularity.desc`;
+      const endpoint = query
+        ? `${BASE_URL}/search/movie?query=${encodeURIComponent(query)}`
+        : `${BASE_URL}/discover/movie?sort_by=popularity.desc`;
       const response = await fetch(endpoint, API_OPTION);
       if (!response.ok) {
         throw new Error("Fail to fetch movies");
@@ -37,10 +45,8 @@ function App() {
   };
 
   useEffect(() => {
-    fetchMovies();
-  }, []);
-
-  console.log("movieList", movieList);
+    fetchMovies(debouncedSearch);
+  }, [debouncedSearch]);
   return (
     <main>
       <div className="pattern" />
@@ -55,16 +61,16 @@ function App() {
           <Search search={search} setSearch={setSearch} />
         </header>
         <section className="all-movies">
-          <h2>All Movies</h2>
+          <h2 className="mt-[40px]">All Movies</h2>
 
           {isLoading ? (
-            <p className="text-white">Loading...</p>
+            <Spinner />
           ) : errorMsg ? (
             <p className="text-red-500">{errorMsg}</p>
           ) : (
             <ul>
               {movieList.map((movie) => (
-                <p className="text-white">{movie.title}</p>
+                <MovieCard key={movie.id} movie={movie} />
               ))}
             </ul>
           )}
