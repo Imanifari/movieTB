@@ -4,6 +4,7 @@ import "./App.css";
 import Search from "./components/Search";
 import Spinner from "./components/Spinner";
 import MovieCard from "./components/MovieCard";
+import { updateSearchCount } from "./appwrite";
 
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3";
@@ -23,8 +24,6 @@ function App() {
   const [movieList, setMovieList] = useState([]);
   const [debouncedSearch] = useDebounce(search, 500);
 
-  console.log("search", search);
-  console.log("debouncedSearch", debouncedSearch);
   const fetchMovies = async (query) => {
     setIsLoading(true);
     try {
@@ -37,6 +36,9 @@ function App() {
       }
       const data = await response.json();
       setMovieList(data.results || []);
+      if (query && data.results.length > 0) {
+        updateSearchCount(query, data.results[0]);
+      }
     } catch (error) {
       console.error(setErrorMsg(`Failed to fetch movies: ${error.message}`));
     } finally {
