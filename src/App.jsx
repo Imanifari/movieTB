@@ -4,7 +4,7 @@ import "./App.css";
 import Search from "./components/Search";
 import Spinner from "./components/Spinner";
 import MovieCard from "./components/MovieCard";
-import { updateSearchCount } from "./appwrite";
+import { getMoviesFromDb, updateSearchCount } from "./appwrite";
 
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3";
@@ -22,7 +22,8 @@ function App() {
   const [errorMsg, setErrorMsg] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [movieList, setMovieList] = useState([]);
-  const [debouncedSearch] = useDebounce(search, 500);
+  const [trendingMovieList, setTrendingMovieList] = useState([]);
+  const [debouncedSearch] = useDebounce(search, 1000);
 
   const fetchMovies = async (query) => {
     setIsLoading(true);
@@ -37,7 +38,7 @@ function App() {
       const data = await response.json();
       setMovieList(data.results || []);
       if (query && data.results.length > 0) {
-        updateSearchCount(query, data.results[0]);
+        await updateSearchCount(query, data.results[0]);
       }
     } catch (error) {
       console.error(setErrorMsg(`Failed to fetch movies: ${error.message}`));
@@ -45,10 +46,20 @@ function App() {
       setIsLoading(false);
     }
   };
-
+  const fetchTrendingMovies = async () => {
+    try {
+      const trending = await getMoviesFromDb();
+      setTrendingMovieList(trending || []);
+    } catch (error) {}
+  };
   useEffect(() => {
     fetchMovies(debouncedSearch);
   }, [debouncedSearch]);
+
+  useEffect(() => {
+    fetchTrendingMovies();
+  }, []);
+
   return (
     <main>
       <div className="pattern" />
@@ -62,6 +73,19 @@ function App() {
           </h1>
           <Search search={search} setSearch={setSearch} />
         </header>
+        {trendingMovieList.length > 0 && (
+          <section className="trending">
+            <h2>Trending Movies</h2>
+            <ul>
+              {trendingMovieList.map((trendingMovie, index) => (
+                <li key={trendingMovie.$id}>
+                  <p>{index + 1}</p>
+                  <img src={trendingMovie.poster_url} alt="trending movie" />
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
         <section className="all-movies">
           <h2 className="mt-[40px]">All Movies</h2>
 
