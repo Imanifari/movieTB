@@ -69,15 +69,23 @@ const MovieDetails = () => {
             </div>
           </div>
         </div>
-        <div className="flex gap-6">
-          <img className="" src="/squid_poster_img.png" alt="movie poster" />
-          <img src="/squid_trailer_img.png" alt="movie poster" />
+        <div className="flex gap-6 flex-col md:flex-row">
+          <img
+            className="w-full h-[490px] lg:"
+            src="/squid_poster_img.png"
+            alt="movie poster"
+          />
+          <img
+            className="w-full h-[185px]"
+            src="/squid_trailer_img.png"
+            alt="movie poster"
+          />
         </div>
         {/* details box */}
-        <div className="flex justify-between items-start w-[80%]">
+        <div className="flex justify-between shrin items-start sm:flex-col gap-8">
           <div>
             {/* each details  */}
-            <div className="flex items-start">
+            <div className="flex items-start w-[80%] sm:w-full">
               {/* title  */}
               <span className="text-(--color-light-200) text-[18px] ">
                 Genres
@@ -85,7 +93,13 @@ const MovieDetails = () => {
               <p className="text-white text-[16px]">Adventure</p>
             </div>
           </div>
-          <Link to={"/"}></Link>
+          <Link
+            to={"/"}
+            className="flex gap-2 text-(--color-light-200) bg-linear-to-r from-[#D6C7FF] to-[#AB8BFF] py-2 px-5 rounded-[6px] text-primary"
+          >
+            Visit Homepage{" "}
+            <img src="/Movie-details-right-arrow.svg" alt="left arrow" />
+          </Link>
         </div>
       </div>
     </div>
