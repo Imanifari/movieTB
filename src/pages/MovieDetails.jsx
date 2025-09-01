@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import Spinner from "../components/Spinner";
+import YouTube from "react-youtube";
+import YoutubeCard from "../components/YoutubeCard";
 
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3";
@@ -18,11 +20,15 @@ const MovieDetails = () => {
   const [movieInfo, setMovieInfo] = useState(null);
   const [errorMsg, setErrorMsg] = useState("");
   const [loading, setLoading] = useState(false);
+  const [videoError, setvideoError] = useState("");
+  const [trailerLoading, setTrailerLoading] = useState(true);
+  const [trailer, setTrailer] = useState([]);
+
   const fetchMovieDetails = async () => {
-    const endpoint = `${BASE_URL}/movie/${params.movieId}`;
+    const detailsEndpoint = `${BASE_URL}/movie/${params.movieId}`;
     try {
       setLoading(true);
-      const response = await fetch(endpoint, API_OPTION);
+      const response = await fetch(detailsEndpoint, API_OPTION);
 
       const data = await response.json();
       if (!data) {
@@ -37,6 +43,28 @@ const MovieDetails = () => {
       setLoading(false);
     }
   };
+
+  // fetch movie videos
+  const fetchMovieVideo = async () => {
+    const videoEndpoint = `${BASE_URL}/movie/${params.movieId}/videos`;
+    try {
+      setTrailerLoading(true);
+      const response = await fetch(videoEndpoint, API_OPTION);
+      const result = await response.json();
+      if (!result) {
+        setvideoError("Fail to fetch movie videos");
+      }
+      setTrailer(result.results || []);
+      setTrailerLoading(false);
+    } catch (error) {
+      console.log(error);
+      setvideoError("Fail to fetch movie videos");
+      setTrailerLoading(false);
+    } finally {
+      setTrailerLoading(false);
+    }
+  };
+  console.log("trailer", trailer);
   const largeNumberFormatter = (num) => {
     if (num >= 1_000_000_000) {
       return (num / 1_000_000_000).toFixed(1) + " Billion";
@@ -53,10 +81,9 @@ const MovieDetails = () => {
     return `${hours}h ${minutes}m`;
   };
 
-  console.log("movieInfo", movieInfo);
-
   useEffect(() => {
     fetchMovieDetails();
+    fetchMovieVideo();
   }, []);
 
   return (
@@ -122,11 +149,18 @@ const MovieDetails = () => {
                 }
                 alt="poster image"
               />
-              <img
+              {/* <img
                 className=" max-w-[680px] lg:w-[500px] lg:h-auto md:flex-1 rounded-xl object-cover"
                 src="/squid_trailer_img.png"
                 alt="movie poster"
-              />
+              /> */}
+              {videoError ? (
+                <p className="text-red-500">{videoError}</p>
+              ) : trailerLoading ? (
+                <Spinner />
+              ) : (
+                <YoutubeCard videoId={trailer[0]?.key} />
+              )}
             </section>
             {/* details box */}
             <div className="flex flex-col md:flex-row mt-7 justify-between items-start gap-8">
