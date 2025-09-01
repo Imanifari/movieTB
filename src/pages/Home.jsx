@@ -65,6 +65,7 @@ const Home = () => {
       <img src="./BG.png" className="absolute" alt="Hero Background" />
       <div className="wrapper">
         <header>
+          <img className="w-[90px] h-auto" src="./logo.png" alt="logo" />
           <img src="./hero-img.png" alt="Hero Banner" />
           <h1 className="">
             Find <span className="text-gradient">Movie</span> You'll Enjoy
