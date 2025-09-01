@@ -37,6 +37,22 @@ const MovieDetails = () => {
       setLoading(false);
     }
   };
+  const largeNumberFormatter = (num) => {
+    if (num >= 1_000_000_000) {
+      return (num / 1_000_000_000).toFixed(1) + " Billion";
+    } else if (num >= 1_000_000) {
+      return (num / 1_000_000).toFixed(0) + " Million";
+    } else if (num >= 1_000) {
+      return (num / 1_000).toFixed(0) + " Thousand";
+    }
+    return num.toString();
+  };
+  const formatTime = (minute) => {
+    const hours = Math.floor(minute / 60);
+    const minutes = minute % 60;
+    return `${hours}h ${minutes}m`;
+  };
+
   console.log("movieInfo", movieInfo);
 
   useEffect(() => {
@@ -71,7 +87,7 @@ const MovieDetails = () => {
                   </span>{" "}
                   •
                   <span className="text-sm text-[#a8b5db] md:text-lg lg:text-xl">
-                    2h 46m
+                    {movieInfo?.runtime ? formatTime(movieInfo.runtime) : "N/A"}
                   </span>
                 </div>
               </div>
@@ -96,8 +112,9 @@ const MovieDetails = () => {
               </div>
             </div>
             {/* poster section */}
-            <section className="flex flex-col md:flex-row gap-6 w-full">
+            <section className="flex flex-col lg:flex-row gap-6 w-full">
               <img
+                className=" max-w-[390px] md:max-w-[292px] rounded-xl object-cover"
                 src={
                   movieInfo?.poster_path
                     ? `https://image.tmdb.org/t/p/w500/${movieInfo.poster_path}`
@@ -106,7 +123,7 @@ const MovieDetails = () => {
                 alt="poster image"
               />
               <img
-                className=" "
+                className=" max-w-[680px] lg:w-[500px] lg:h-auto md:flex-1 rounded-xl object-cover"
                 src="/squid_trailer_img.png"
                 alt="movie poster"
               />
@@ -123,7 +140,7 @@ const MovieDetails = () => {
                   </span>
                   {/* text */}
                   <div className="text-white flex gap-2 overflow-y-auto hide-scrollbar">
-                    {movieInfo.genres
+                    {movieInfo?.genres
                       ? movieInfo.genres.map((genre) => (
                           <span
                             key={genre.id}
@@ -147,7 +164,7 @@ const MovieDetails = () => {
                   </p>
                 </div>
                 {/* Release date */}
-                <div className="flex flex-col md:flex-row gap-3 pt-4 items-start md:gap-[33px] ">
+                <div className="flex flex-col md:flex-row gap-3 pt-4 items-start md:gap-[31px] ">
                   {/* title  */}
                   <span className="text-(--color-light-200) text-[18px] ">
                     Release Date
@@ -159,7 +176,7 @@ const MovieDetails = () => {
                   </p>
                 </div>
                 {/* countries */}
-                <div className="flex flex-col md:flex-row gap-3 pt-4 items-start md:gap-[33px] ">
+                <div className="flex flex-col md:flex-row gap-3 pt-4 items-start md:gap-[62px] ">
                   {/* title  */}
                   <span className="text-(--color-light-200) text-[18px] ">
                     Countries
@@ -168,10 +185,95 @@ const MovieDetails = () => {
                   <p className="text-(--info-text) text-[16px]">
                     {movieInfo?.production_countries
                       ? movieInfo.production_countries.map((country) => (
-                          <span key={country.name}>{country?.name}</span>
+                          <span key={country.name} className="mr-3">
+                            {country?.name}
+                          </span>
                         ))
+                      : "N/A"}
+                  </p>
+                </div>
+                {/* status */}
+                <div className="flex flex-col md:flex-row gap-3 pt-4 items-start md:gap-[88px] ">
+                  {/* title  */}
+                  <span className="text-(--color-light-200) text-[18px] ">
+                    Status
+                  </span>
+                  {/* text */}
+                  <p className="text-(--info-text) text-[16px]">
+                    {movieInfo?.status ? movieInfo.status : "N/A"}{" "}
+                  </p>
+                </div>
+                {/* language */}
+                <div className="flex flex-col md:flex-row gap-3 pt-4 items-start md:gap-[59px] ">
+                  {/* title  */}
+                  <span className="text-(--color-light-200) text-[18px] ">
+                    Language
+                  </span>
+                  {/* text */}
+                  <p className="text-(--info-text) text-[16px]">
+                    {movieInfo?.spoken_languages
+                      ? movieInfo.spoken_languages.map((language) => (
+                          <span key={language.name} className="mr-3">
+                            {language?.name}
+                          </span>
+                        ))
+                      : "N/A"}
+                  </p>
+                </div>
+                {/* budget */}
+                <div className="flex flex-col md:flex-row gap-3 pt-4 items-start md:gap-[83px] ">
+                  {/* title  */}
+                  <span className="text-(--color-light-200) text-[18px] ">
+                    Budget
+                  </span>
+                  {/* text */}
+                  <p className="text-(--info-text) text-[16px]">
+                    $
+                    {movieInfo?.budget
+                      ? largeNumberFormatter(movieInfo.budget)
                       : "N/A"}{" "}
-                    (Worldwide)
+                  </p>
+                </div>
+                {/* revenue */}
+                <div className="flex flex-col md:flex-row gap-3 pt-4 items-start md:gap-[68px] ">
+                  {/* title  */}
+                  <span className="text-(--color-light-200) text-[18px] ">
+                    Revenue
+                  </span>
+                  {/* text */}
+                  <p className="text-(--info-text) text-[16px]">
+                    $
+                    {movieInfo?.revenue
+                      ? largeNumberFormatter(movieInfo.revenue)
+                      : "N/A"}{" "}
+                  </p>
+                </div>
+                {/* tagline */}
+                <div className="flex flex-col md:flex-row gap-3 pt-4 items-start md:gap-[85px] ">
+                  {/* title  */}
+                  <span className="text-(--color-light-200) text-[18px] ">
+                    Tagline
+                  </span>
+                  {/* text */}
+                  <p className="text-(--info-text) text-[16px]">
+                    {movieInfo?.tagline ? movieInfo?.tagline : "N/A"}{" "}
+                  </p>
+                </div>
+                {/* production companies */}
+                <div className="flex flex-col md:flex-row gap-3 pt-4 items-start md:gap-[102px] ">
+                  {/* title  */}
+                  <span className="text-(--color-light-200) text-[18px] md:w-10">
+                    Production Companies
+                  </span>
+                  {/* text */}
+                  <p className="text-(--info-text) text-[16px]">
+                    {movieInfo?.production_companies
+                      ? movieInfo?.production_companies.map((company) => (
+                          <span key={company?.id} className="mr-3">
+                            {company?.name}
+                          </span>
+                        ))
+                      : "N/A"}
                   </p>
                 </div>
               </div>
