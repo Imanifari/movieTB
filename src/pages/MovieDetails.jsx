@@ -57,14 +57,13 @@ const MovieDetails = () => {
       setTrailer(result.results || []);
       setTrailerLoading(false);
     } catch (error) {
-      console.log(error);
       setvideoError("Fail to fetch movie videos");
       setTrailerLoading(false);
     } finally {
       setTrailerLoading(false);
     }
   };
-  console.log("trailer", trailer);
+
   const largeNumberFormatter = (num) => {
     if (num >= 1_000_000_000) {
       return (num / 1_000_000_000).toFixed(1) + " Billion";
@@ -80,7 +79,11 @@ const MovieDetails = () => {
     const minutes = minute % 60;
     return `${hours}h ${minutes}m`;
   };
-
+  const thousandFormater = (num) => {
+    if (num >= 1_000) {
+      return (num / 1_000).toFixed(1) + "K";
+    }
+  };
   useEffect(() => {
     fetchMovieDetails();
     fetchMovieVideo();
@@ -95,7 +98,7 @@ const MovieDetails = () => {
       ) : (
         <div className="w-full h-screen flex justify-center items-center ">
           {/* wrapper */}
-          <div className="flex flex-col align-middle max-w-[1100px] w-[95%] h-[90%] rounded-2xl bg-(--color-dark-100) shadow-[0_0_27px_#ab8bff] overflow-y-auto  hide-scrollbar lg:p-[50px] md:p-8 p-4">
+          <div className="flex flex-col align-middle max-w-[1100px] w-[95%] h-[90%] rounded-2xl bg-(--color-dark-100) shadow-[0_0_27px_#ab8bff] overflow-y-auto  hide-scrollbar lg:p-[50px] md:p-8 p-7">
             {/* header */}
             <div className="mb-9 flex flex-col md:flex-row justify-between items-start gap-6">
               <div className="flex flex-col lg:gap-4 sm:gap-2">
@@ -127,7 +130,11 @@ const MovieDetails = () => {
                         ? movieInfo.vote_average.toFixed(1)
                         : "N/A"}
                     </span>
-                    /10 ({movieInfo?.vote_count ? movieInfo.vote_count : "N/A"})
+                    /10 (
+                    {movieInfo?.vote_count
+                      ? thousandFormater(movieInfo.vote_count)
+                      : "N/A"}
+                    )
                   </p>
                 </div>
                 <div className="flex items-center bg-(--button-light) gap-3 h-11 px-4 py-2 rounded-[6px]">
@@ -139,16 +146,18 @@ const MovieDetails = () => {
               </div>
             </div>
             {/* poster section */}
-            <section className="flex flex-col lg:flex-row gap-6 w-full">
-              <img
-                className=" max-w-[390px] md:max-w-[292px] rounded-xl object-cover"
-                src={
-                  movieInfo?.poster_path
-                    ? `https://image.tmdb.org/t/p/w500/${movieInfo.poster_path}`
-                    : "/no-poster.png"
-                }
-                alt="poster image"
-              />
+            <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="">
+                <img
+                  className="w-full h-auto md:max-w-[250px] rounded-xl shadow"
+                  src={
+                    movieInfo?.poster_path
+                      ? `https://image.tmdb.org/t/p/w500/${movieInfo.poster_path}`
+                      : "/no-poster.png"
+                  }
+                  alt="poster"
+                />
+              </div>
               {/* <img
                 className=" max-w-[680px] lg:w-[500px] lg:h-auto md:flex-1 rounded-xl object-cover"
                 src="/squid_trailer_img.png"
@@ -159,7 +168,9 @@ const MovieDetails = () => {
               ) : trailerLoading ? (
                 <Spinner />
               ) : (
-                <YoutubeCard videoId={trailer[0]?.key} />
+                <div className="md:col-span-2 rounded-xl">
+                  <YoutubeCard videoId={trailer[0]?.key} />
+                </div>
               )}
             </section>
             {/* details box */}
@@ -173,15 +184,15 @@ const MovieDetails = () => {
                     Genres
                   </span>
                   {/* text */}
-                  <div className="text-white flex gap-2 overflow-y-auto hide-scrollbar">
+                  <div className="text-white flex gap-2 flex-wrap">
                     {movieInfo?.genres
                       ? movieInfo.genres.map((genre) => (
-                          <span
+                          <div
                             key={genre.id}
                             className="text-white text-[16px] bg-(--button-light) px-[18px] py-2 rounded-[6px]"
                           >
                             {genre.name}
-                          </span>
+                          </div>
                         ))
                       : "None"}
                   </div>
